@@ -7,11 +7,12 @@ services:
       - "7077:7077"
       - "4040:4040"
     volumes:
-       - ./apps:/opt/spark-apps
-       - ./data:/opt/spark-data
+      - ./apps:/opt/spark-apps
+      - ./data:/opt/spark-data
+    env_file:
+      - .env_master
     environment:
       - SPARK_LOCAL_IP=spark-master
-      - SPARK_WORKLOAD=master
 
   spark-worker-a:
     build: .
@@ -20,17 +21,13 @@ services:
       - "7001:7000"
     depends_on:
       - spark-master
+    env_file:
+      - .env_worker
     environment:
-      - SPARK_MASTER=spark://spark-master:7077
-      - SPARK_WORKER_CORES=1
-      - SPARK_WORKER_MEMORY=2G
-      - SPARK_DRIVER_MEMORY=1G
-      - SPARK_EXECUTOR_MEMORY=1G
-      - SPARK_WORKLOAD=worker
       - SPARK_LOCAL_IP=spark-worker-a
     volumes:
-       - ./apps:/opt/spark-apps
-       - ./data:/opt/spark-data
+      - ./apps:/opt/spark-apps
+      - ./data:/opt/spark-data
 
   spark-worker-b:
     build: .
@@ -39,17 +36,13 @@ services:
       - "7002:7000"
     depends_on:
       - spark-master
+    env_file:
+      - .env_worker
     environment:
-      - SPARK_MASTER=spark://spark-master:7077
-      - SPARK_WORKER_CORES=1
-      - SPARK_WORKER_MEMORY=2G
-      - SPARK_DRIVER_MEMORY=1G
-      - SPARK_EXECUTOR_MEMORY=1G
-      - SPARK_WORKLOAD=worker
       - SPARK_LOCAL_IP=spark-worker-b
     volumes:
-        - ./apps:/opt/spark-apps
-        - ./data:/opt/spark-data
+      - ./apps:/opt/spark-apps
+      - ./data:/opt/spark-data
 
   spark-worker-c:
     build: .
@@ -58,17 +51,13 @@ services:
       - "7003:7000"
     depends_on:
       - spark-master
+    env_file:
+      - .env_worker
     environment:
-      - SPARK_MASTER=spark://spark-master:7077
-      - SPARK_WORKER_CORES=1
-      - SPARK_WORKER_MEMORY=2G
-      - SPARK_DRIVER_MEMORY=1G
-      - SPARK_EXECUTOR_MEMORY=1G
-      - SPARK_WORKLOAD=worker
       - SPARK_LOCAL_IP=spark-worker-c
     volumes:
-        - ./apps:/opt/spark-apps
-        - ./data:/opt/spark-data
+      - ./apps:/opt/spark-apps
+      - ./data:/opt/spark-data
 
   spark-worker-d:
     build: .
@@ -77,14 +66,10 @@ services:
       - "7004:7000"
     depends_on:
       - spark-master
+    env_file:
+      - .env_worker
     environment:
-      - SPARK_MASTER=spark://spark-master:7077
-      - SPARK_WORKER_CORES=1
-      - SPARK_WORKER_MEMORY=2G
-      - SPARK_DRIVER_MEMORY=1G
-      - SPARK_EXECUTOR_MEMORY=1G
-      - SPARK_WORKLOAD=worker
       - SPARK_LOCAL_IP=spark-worker-d
     volumes:
-        - ./apps:/opt/spark-apps
-        - ./data:/opt/spark-data
+      - ./apps:/opt/spark-apps
+      - ./data:/opt/spark-data
