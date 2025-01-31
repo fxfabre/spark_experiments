@@ -1,1 +1,2 @@
-pandas
+pyspark==3.5.4
+# pyspark-stubs

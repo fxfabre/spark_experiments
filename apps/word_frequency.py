@@ -1,7 +1,13 @@
+"""
+wget https://raw.githubusercontent.com/mrn-aglic/pyspark-playground/refs/heads/main/book_data/pride-and-prejudice.txt -O data/books/pride-and-prejudice.txt
+"""
+
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.appName("word counter").getOrCreate()
+
+spark.read.text("/opt/spark-data/books/*.txt").show()
 
 results = (
     spark.read.text("/opt/spark-data/books/*.txt")

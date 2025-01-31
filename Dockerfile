@@ -21,7 +21,7 @@ RUN wget --no-verbose -O apache-spark.tgz "https://archive.apache.org/dist/spark
 
 ## Installer les dépendances Python
 #COPY requirements.txt /app/requirements.txt
-#RUN pip3 install --no-cache-dir -r /app/requirements.txt
+RUN pip install --no-cache-dir pandas
 
 WORKDIR $SPARK_HOME
 
