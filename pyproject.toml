@@ -1,0 +1,89 @@
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+indent-width = 4
+
+#include = ["pyproject.toml", "apps/**/*.py", "*.ipynb"]
+extend-exclude = [".idea"]
+cache-dir = "~/.cache/ruff"
+
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+select = ["E4", "E7", "E9", "F"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+#dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+
+[tool.ruff.format]
+exclude = ["*.pyi"]
+
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# Enable auto-formatting of code examples in docstrings
+docstring-code-format = false
+
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+exclude = [
+    '^setup\.py$',  # TOML literal string (single-quotes, no escaping necessary)
+    "^config/*",
+]
+
+
+[[tool.mypy.overrides]]
+module = "mycode.bar"
+warn_return_any = false
+
+ignore_missing_imports = true
+
+
+[tool.sqlfluff.core]
+dialect = "sparksql"
+max_line_length = 120
+processes = 1
+
+# See https://docs.sqlfluff.com/en/stable/perma/rule_disabling.html
+exclude_rules = [
+    "structure.column_order",
+]
+
+[tool.sqlfluff.indentation]
+# While implicit indents are not enabled by default. Many of the
+# SQLFluff maintainers do use them in their projects.
+allow_implicit_indents = true
+
+[tool.sqlfluff.rules.aliasing.length]
+min_alias_length = 2
+
+[tool.sqlfluff.rules.capitalisation.keywords]
+capitalisation_policy = "upper"
+
+[tool.sqlfluff.rules.capitalisation.identifiers]
+extended_capitalisation_policy = "lower"
+
+[tool.sqlfluff.rules.capitalisation.functions]
+extended_capitalisation_policy = "lower"
+
+[tool.sqlfluff.rules.capitalisation.literals]
+capitalisation_policy = "lower"
+
+[tool.sqlfluff.rules.capitalisation.types]
+extended_capitalisation_policy = "lower"
+
+[tool.sqlfluff.rules.convention.not_equal]
+preferred_not_equal_style = "c_style"

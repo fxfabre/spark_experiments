@@ -2,29 +2,37 @@ WITH
 
 clean_data AS (
     SELECT
-        dt, year(dt) as dt_year, month(dt) as dt_month,
-        Country, City,
-        CAST(AverageTemperature AS FLOAT) AS AverageTemperature
+        dt,
+        year(dt) AS dt_year,
+        month(dt) AS dt_month,
+        country,
+        city,
+        cast(averagetemperature AS float) AS avg_temperature
     FROM temp_by_city
-    WHERE AverageTemperature IS NOT NULL
-      --AND Country = 'France'
+    WHERE averagetemperature IS NOT null
+    --AND Country = 'France'
 ),
 
 with_diffs AS (
-    SELECT *,
-        LAG(AverageTemperature) OVER(PARTITION BY Country, City, dt_month ORDER BY dt_year ASC) AS prev_year_temp,
-        LAG(dt) OVER(PARTITION BY Country, City, dt_month ORDER BY dt_year ASC) as prev_dt,
-        LAG(dt_year) OVER(PARTITION BY Country, City, dt_month ORDER BY dt_year ASC) as prev_year,
-        (AverageTemperature - prev_year_temp) / (dt_year - prev_year) as temp_diff_by_year
+    SELECT
+        country,
+        city,
+        lag(avg_temperature) OVER (w) AS prev_year_temp,
+        year(lag(dt) OVER (w)) AS prev_year,
+        (avg_temperature - prev_year_temp) / (dt_year - prev_year) AS temp_diff_by_year
     FROM clean_data
+    WINDOW w AS (
+        PARTITION BY country, city, dt_month
+        ORDER BY dt_year ASC
+    )
 )
 
 SELECT
-    Country,
-    City,
+    country,
+    city,
     -- round(temp_diff_by_year, 5) as temp_diff_by_year
     avg(temp_diff_by_year) AS avg_diff_temp_by_year
 FROM with_diffs
-WHERE temp_diff_by_year IS NOT NULL
-GROUP BY Country, City
+WHERE temp_diff_by_year IS NOT null
+GROUP BY country, city
 ORDER BY avg_diff_temp_by_year

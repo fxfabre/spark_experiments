@@ -1,0 +1,83 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+# Apply to all files without commiting:
+#   pre-commit run --all-files
+# Commit without running this file
+#   git commit --no-verify
+# Update this file:
+#   pre-commit autoupdate
+
+default_language_version:
+  python: python3.11
+
+repos:
+#  - repo: https://github.com/pycqa/isort
+#    rev: 5.12.0
+#    hooks:
+#      - id: isort
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: trailing-whitespace # Removes trailing whitespaces
+      - id: mixed-line-ending # Replaces all line endings with the most frequent one
+      - id: check-ast # Fails if syntax errors in python files
+      - id: check-yaml # Fails if yaml is not valid
+      - id: check-json # Fails if json is not valid
+
+#  - repo: https://github.com/psf/black
+#    rev: 23.7.0
+#    hooks:
+#      - id: black
+#        args: [--line-length=100]
+
+#  - repo: https://github.com/pycqa/flake8
+#    rev: 6.0.0
+#    hooks:
+#      - id: flake8
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # designed as a drop-in replacement for Black, Flake8, isort, and pyupgrade.
+    rev: v0.9.4
+    hooks:
+    - id: ruff
+      name: ruff
+      description: "Python linting"
+      entry: ruff check --force-exclude
+      language: python
+      types_or: [python, pyi]
+      args: []
+      require_serial: true
+      additional_dependencies: []
+      minimum_pre_commit_version: "2.9.2"
+
+    - id: ruff-format
+      name: ruff-format
+      description: "Python formatting"
+      entry: ruff format --force-exclude
+      language: python
+      types_or: [python, pyi]
+      args: []
+      require_serial: true
+      additional_dependencies: []
+      minimum_pre_commit_version: "2.9.2"
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.14.1
+    hooks:
+    - id: mypy
+      additional_dependencies: [tokenize-rt==3.2.0]
+
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 3.3.0
+    hooks:
+      - id: sqlfluff-lint
+      - id: sqlfluff-fix
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.2
+    hooks:
+    - id: bandit
