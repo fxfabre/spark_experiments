@@ -12,32 +12,37 @@ from pprint import pprint
 
 APP_NAME = Path(__file__).stem.replace("_", " ")
 
+
 def get_df(spark: SparkSession):
     return (
-        spark
-        .read.csv("/opt/spark-data/global_warming_dataset.csv", header=True, inferSchema=True)
+        spark.read.csv(
+            "/opt/spark-data/csv/global_warming_dataset.csv", header=True, inferSchema=True
+        )
         .select("Country", "Year", "Average_Temperature")
-        .groupBy("Year", "Country").agg(F.avg("Average_Temperature").alias("Avg_Temperature"))
+        .groupBy("Year", "Country")
+        .agg(F.avg("Average_Temperature").alias("Avg_Temperature"))
     )
 
 
 def create_dataframe():
     spark = SparkSession.builder.appName(APP_NAME).getOrCreate()
-    df = spark.createDataFrame([
-        Row(name="Alice", age=34),
-        Row(name="Bob", age=45),
-        Row(name="Charlie", age=29)
-    ])
+    df = spark.createDataFrame(
+        [Row(name="Alice", age=34), Row(name="Bob", age=45), Row(name="Charlie", age=29)]
+    )
 
     df.show()
 
 
 def display():
     spark = SparkSession.builder.appName(APP_NAME).getOrCreate()
-    df = spark.read.csv("/opt/spark-data/global_warming_dataset.csv", header=True, inferSchema=True)
+    df = spark.read.csv(
+        "/opt/spark-data/csv/global_warming_dataset.csv", header=True, inferSchema=True
+    )
     df.show(3)
     df.printSchema()
-    df.filter("Country = 'Country_187'").select("Country", "Year", "Average_Temperature").groupBy("Country", "Year").count().sort("count", ascending=False).show()
+    df.filter("Country = 'Country_187'").select("Country", "Year", "Average_Temperature").groupBy(
+        "Country", "Year"
+    ).count().sort("count", ascending=False).show()
 
 
 def evol_temp_par_pays_python():
@@ -50,12 +55,13 @@ def evol_temp_par_pays_python():
     )
     df.show()
 
+
 def evol_temp_par_pays_sql():
     spark = SparkSession.builder.appName(APP_NAME).getOrCreate()
     (
-        spark
-        .read.csv("/opt/spark-data/global_warming_dataset.csv", header=True, inferSchema=True)
-        .createOrReplaceTempView("global_warming_dataset")
+        spark.read.csv(
+            "/opt/spark-data/csv/global_warming_dataset.csv", header=True, inferSchema=True
+        ).createOrReplaceTempView("global_warming_dataset")
     )
     query = """
         SELECT *
@@ -64,7 +70,6 @@ def evol_temp_par_pays_sql():
           AND Year == 1900
     """
     pprint(spark.sql(query).toPandas().T, width=160)
-
 
 
 # display()

@@ -9,6 +9,7 @@ services:
     volumes:
       - ./apps:/opt/spark-apps
       - ./data:/opt/spark-data
+      - ./config:/opt/spark/conf
     env_file:
       - .env_master
     environment:
@@ -28,6 +29,7 @@ services:
     volumes:
       - ./apps:/opt/spark-apps
       - ./data:/opt/spark-data
+      - ./config:/opt/spark/conf
 
   spark-worker-b:
     build: .

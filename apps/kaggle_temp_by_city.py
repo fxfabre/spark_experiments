@@ -4,16 +4,20 @@ https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-tempe
 
 Launch :
 docker exec -it spark_experiments-spark-master-1 bash
-./bin/spark-submit --master spark://spark-master:7077 --deploy-mode client /opt/spark-apps/kaggle_global_warming.py
+./bin/spark-submit --master spark://spark-master:7077 --deploy-mode client /opt/spark-apps/kaggle_temp_by_city.py
 """
 
 import logging
 from pathlib import Path
 from pprint import pprint
-import pyspark.sql.functions as F
-from pyspark.sql import SparkSession
+
 import pandas as pd
+import pyspark.sql.functions as F
+from pyspark import SparkConf
+from pyspark.sql import SparkSession
 from pyspark.sql.window import Window
+
+from common import Log4J
 
 logging.getLogger("org.apache.spark.scheduler.TaskSetManager").setLevel(logging.WARNING)
 
@@ -22,20 +26,32 @@ APP_NAME = Path(__file__).stem
 
 def display() -> None:
     spark = SparkSession.builder.appName(APP_NAME).getOrCreate()
-    df = spark.read.csv("/opt/spark-data/global_temp_by_city.csv")
+    logger = Log4J(spark)
+    df = (
+        spark.read.format("csv")
+        .option("header", "true")
+        .option("inferSchema", "true")
+        .load("/opt/spark-data/csv/temp_by_city.csv")
+    )
     df.show(3)
     df.printSchema()
+    logger.info("CSV schema : " + df.schema.simpleString())
 
 
 def evol_temp_par_pays_python() -> pd.DataFrame:
-    spark = (
-        SparkSession.builder.appName(APP_NAME + ".python")
-        .config("spark.driver.memory", "2g")
-        .getOrCreate()
+    conf = (
+        SparkConf()
+        # .setMaster("local[3]")  # Or set it from command line --master spark://spark-master:7077
+        .set("spark.driver.memory", "2g")
+        .setAppName(APP_NAME + ".python")
     )
+    spark = SparkSession.builder.config(conf=conf).getOrCreate()
     window = Window.partitionBy("Country", "City", "month").orderBy("dt_year")
     df = (
-        spark.read.csv("/opt/spark-data/global_temp_by_city.csv", header=True, inferSchema=True)
+        spark.read.format("csv")
+        .option("header", "true")
+        .option("inferSchema", "true")
+        .load("/opt/spark-data/csv/temp_by_city.csv")
         .filter(F.col("AverageTemperature").isNotNull())
         # .filter("Country == 'France'")
         #
@@ -66,20 +82,25 @@ def evol_temp_par_pays_python() -> pd.DataFrame:
         .groupBy("country", "city")
         .agg(F.avg("temp_diff_by_year").alias("avg_diff_temp_by_year"))
         .orderBy("avg_diff_temp_by_year")
-    ).toPandas()
+        .cache()
+    )
 
-    pprint(df, width=160)
-    return pd.DataFrame(df)
+    df.printSchema()
+    pdf = df.toPandas()
+    pprint(pdf, width=160)
+    return pd.DataFrame(pdf)
 
 
 def evol_temp_par_pays_sql() -> pd.DataFrame:
-    query = Path("/opt/spark-apps/evol_temp_par_pays.sql").read_text()
+    query = Path("/opt/spark-apps/sql/evol_temp_par_pays.sql").read_text()
 
     spark = SparkSession.builder.appName(APP_NAME + ".sql").getOrCreate()
     (
-        spark.read.csv(
-            "/opt/spark-data/global_temp_by_city.csv", header=True, inferSchema=True
-        ).createOrReplaceTempView("temp_by_city")
+        spark.read.format("csv")
+        .option("header", "true")
+        .option("inferSchema", "true")
+        .load("/opt/spark-data/csv/temp_by_city.csv")
+        .createOrReplaceTempView("temp_by_city")
     )
     df = spark.sql(query).toPandas()
     pprint(df, width=160)
