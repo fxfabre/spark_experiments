@@ -24,9 +24,10 @@ RUN wget --no-verbose -O apache-spark.tgz "https://archive.apache.org/dist/spark
 RUN pip install --no-cache-dir pandas
 
 WORKDIR $SPARK_HOME
+RUN mkdir -p "$SPARK_HOME/logs"
 
 #COPY config/*.conf conf/.
-COPY config/log4j2.properties conf/.
+COPY config conf
 COPY start-spark.sh /
 
 RUN echo 'alias l="ls -lA --color --group-directories-first"' >> /root/.bashrc

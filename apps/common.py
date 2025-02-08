@@ -1,3 +1,4 @@
+from pyspark import SparkConf
 from pyspark.sql import SparkSession
 from typing import Any
 
@@ -24,3 +25,24 @@ class Log4J:
 
     def error(self, *msgs: Any):
         self.logger.error(" ".join(map(str, msgs)))
+
+
+def get_logger(spark, logger_name):
+    return Log4J(spark, logger_name)
+
+
+def read_file(app_name, file_name):
+    conf = (
+        SparkConf()
+        # .setMaster("local[3]")  # Or set it from command line --master spark://spark-master:7077
+        .set("spark.driver.memory", "2g")
+        .setAppName(app_name)
+    )
+    spark = SparkSession.builder.config(conf=conf).getOrCreate()
+    df = (
+        spark.read.format("csv")
+        .option("header", "true")
+        .option("inferSchema", "true")
+        .load("/opt/spark-data/csv/" + file_name)
+    )
+    return spark, df

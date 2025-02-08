@@ -4,7 +4,7 @@ https://www.kaggle.com/datasets/berkeleyearth/climate-change-earth-surface-tempe
 
 Launch :
 docker exec -it spark_experiments-spark-master-1 bash
-./bin/spark-submit --master spark://spark-master:7077 --deploy-mode client /opt/spark-apps/kaggle_temp_by_city.py
+./bin/spark-submit --deploy-mode client /opt/spark-apps/kaggle_temp_by_city.py
 """
 
 import logging
